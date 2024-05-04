@@ -1,6 +1,6 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AllExceptionsFilter } from './allExceptionsFilter';
+import { AppFilter } from './app.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,7 +8,7 @@ async function bootstrap() {
 
   // '/api' 경로로 들어오는 요청에 대한 전역 접두사 설정
   app.setGlobalPrefix('api');
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+  app.useGlobalFilters(new AppFilter(httpAdapter));
 
   await app.listen(3000);
 }

@@ -2,7 +2,7 @@ import { Catch, ArgumentsHost } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 
 @Catch()
-export class AllExceptionsFilter extends BaseExceptionFilter {
+export class AppFilter extends BaseExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const code = exception?.code;
     if (code === 'ENOENT') {
