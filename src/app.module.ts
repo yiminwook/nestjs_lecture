@@ -11,6 +11,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api*'],
+      serveStaticOptions: {
+        // false일시 Error 발생
+        fallthrough: false,
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
