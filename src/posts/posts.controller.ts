@@ -10,7 +10,6 @@ import {
 import { PostsService } from './posts.service';
 
 // controller 요청을 받는 역할, 라우팅
-
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
@@ -47,10 +46,5 @@ export class PostsController {
   @Delete(':id')
   deletePostsById(@Param('id') id: string) {
     return this.postsService.deletePost(Number(id));
-  }
-
-  @Delete()
-  deletePosts() {
-    return this.postsService.deleteAllPost();
   }
 }
