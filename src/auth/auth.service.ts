@@ -16,12 +16,14 @@ export class AuthService {
 
   async authenticateWithEmailAndPassword() {}
 
-  async loginUser() {}
+  loginUser(user: Pick<UsersModel, 'email' | 'id'>) {
+    return {
+      accessToken: this.signToken(user, false),
+      refreshToken: this.signToken(user, true),
+    };
+  }
 
-  async signToken(
-    user: Pick<UsersModel, 'email' | 'id'>,
-    isRefreshToken: boolean,
-  ) {
+  signToken(user: Pick<UsersModel, 'email' | 'id'>, isRefreshToken: boolean) {
     const payload = {
       sub: user.id,
       email: user.email,
