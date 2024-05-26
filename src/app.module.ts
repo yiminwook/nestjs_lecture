@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostsModel } from './posts/entities/posts.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -24,10 +24,11 @@ import { PostsModel } from './posts/entities/posts.entity';
       username: 'postgres',
       password: 'postgres',
       database: 'postgres',
-      entities: [PostsModel],
+      entities: [__dirname + '/**/*.entity.{js,ts}'],
       synchronize: true,
     }),
     PostsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

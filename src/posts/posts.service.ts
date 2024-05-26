@@ -21,21 +21,19 @@ export class PostsService {
     return post;
   }
 
-  async createPost(author: string, title: string, content: string) {
-    const post = this.postsRepository.create({ author, title, content });
+  async createPost(authorId: number, title: string, content: string) {
+    const post = this.postsRepository.create({
+      author: { id: authorId },
+      title,
+      content,
+    });
     const newPost = await this.postsRepository.save(post);
     return newPost;
   }
 
-  async updatePost(
-    postId: number,
-    author?: string,
-    title?: string,
-    content?: string,
-  ) {
+  async updatePost(postId: number, title: string, content: string) {
     const post = await this.postsRepository.findOne({ where: { id: postId } });
     if (!post) throw new NotFoundException();
-    if (author) post.author = author;
     if (title) post.title = title;
     if (content) post.content = content;
     return this.postsRepository.save(post);
