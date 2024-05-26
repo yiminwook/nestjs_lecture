@@ -12,10 +12,12 @@ export class PostsService {
   ) {}
 
   async getAllPosts() {
-    return this.postsRepository.find();
+    return this.postsRepository.find({
+      relations: ['author'],
+    });
   }
 
-  async getPost(postId: number) {
+  async getPostById(postId: number) {
     const post = await this.postsRepository.findOne({ where: { id: postId } });
     if (!post) throw new NotFoundException();
     return post;
