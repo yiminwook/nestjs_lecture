@@ -20,4 +20,8 @@ export class UsersService {
     const newUser = this.usersRepository.save(user);
     return newUser;
   }
+
+  async getUserByEmail(email: string) {
+    return this.usersRepository.findOne({ where: { email } });
+  }
 }
