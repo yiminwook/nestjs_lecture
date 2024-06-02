@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersModel } from 'src/users/entities/users.entity';
-import { JWT_SECRET } from './const/auth.const';
+import { HASH_ROUND, JWT_SECRET } from './const/auth.const';
 import { TokensEnum } from './const/tokens.const';
 import { UsersService } from 'src/users/users.service';
 import * as bycrypt from 'bcrypt';
@@ -52,18 +52,21 @@ export class AuthService {
   }
 
   //회원가입 후 바로 로그인
-  async registerWithEmail(email: string, nickname: string, password: string) {
-    return {
-      accessToken: 'accessToken',
-      refreshToken: 'refreshToken',
-    };
+  async registerWithEmail(
+    user: Pick<UsersModel, 'email' | 'password' | 'nickname'>,
+  ) {
+    const hash = await bycrypt.hash(user.password, HASH_ROUND);
+    const newUser = await this.userService.createUser({
+      ...user,
+      password: hash,
+    });
+    return this.loginUser(newUser);
   }
 
   //로그인
-  async loginWithEmail(email: string, password: string) {
-    return {
-      accessToken: 'accessToken',
-      refreshToken: 'refreshToken',
-    };
+  async loginWithEmail(user: Pick<UsersModel, 'email' | 'password'>) {
+    const existingUser = await this.authenticateWithEmailAndPassword(user);
+
+    return this.loginUser(existingUser);
   }
 }
