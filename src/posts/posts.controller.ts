@@ -8,8 +8,11 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { AccessTokenGuard } from 'src/auth/guard/bear-token.guard';
+import { User } from 'src/users/decorator/user.decorator';
 
 // controller 요청을 받는 역할, 라우팅
 @Controller('posts')
@@ -27,13 +30,14 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(AccessTokenGuard)
   postPosts(
-    @Body('authorId') authorId: number,
+    @User('id') userId: number,
     @Body('title') title: string,
     @Body('content') content: string,
     @Body('isPublic', new DefaultValuePipe(true)) isPublic: boolean,
   ) {
-    return this.postsService.createPost(authorId, title, content);
+    return this.postsService.createPost(userId, title, content);
   }
 
   @Patch(':id')
