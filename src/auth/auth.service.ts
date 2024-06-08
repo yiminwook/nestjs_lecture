@@ -82,7 +82,11 @@ export class AuthService {
   }
 
   verifyToken(token: string) {
-    return this.jwrService.verify<PayLoad>(token, { secret: JWT_SECRET });
+    try {
+      return this.jwrService.verify<PayLoad>(token, { secret: JWT_SECRET });
+    } catch (e) {
+      throw new UnauthorizedException('토큰이 만료되거나 잘못되었습니다.');
+    }
   }
 
   rotateToken(token: string, isRefreshToken: boolean) {
