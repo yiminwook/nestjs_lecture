@@ -5,6 +5,7 @@ import { HASH_ROUND, JWT_SECRET } from './const/auth.const';
 import { TokensEnum } from './const/tokens.const';
 import { UsersService } from 'src/users/users.service';
 import * as bycrypt from 'bcrypt';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 type PayLoad = {
   sub: number;
@@ -105,12 +106,10 @@ export class AuthService {
   }
 
   //회원가입 후 바로 로그인
-  async registerWithEmail(
-    user: Pick<UsersModel, 'email' | 'password' | 'nickname'>,
-  ) {
-    const hash = await bycrypt.hash(user.password, HASH_ROUND);
+  async registerWithEmail(userDto: RegisterUserDto) {
+    const hash = await bycrypt.hash(userDto.password, HASH_ROUND);
     const newUser = await this.userService.createUser({
-      ...user,
+      ...userDto,
       password: hash,
     });
     return this.loginUser(newUser);

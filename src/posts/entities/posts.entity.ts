@@ -1,4 +1,6 @@
+import { IsString } from 'class-validator';
 import { BaseModel } from 'src/common/entity/base.entity';
+import { stringValidationMessage } from 'src/common/validator/message/string.message';
 import { UsersModel } from 'src/users/entities/users.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -10,9 +12,11 @@ export class PostsModel extends BaseModel {
   author: UsersModel;
 
   @Column()
+  @IsString({ message: stringValidationMessage })
   title: string;
 
   @Column()
+  @IsString({ message: stringValidationMessage })
   content: string;
 
   @Column({ default: 0 })

@@ -13,6 +13,8 @@ import {
 import { PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bear-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 // controller 요청을 받는 역할, 라우팅
 @Controller('posts')
@@ -33,20 +35,20 @@ export class PostsController {
   @UseGuards(AccessTokenGuard)
   postPosts(
     @User('id') userId: number,
-    @Body('title') title: string,
-    @Body('content') content: string,
+    @Body() postDto: CreatePostDto,
     @Body('isPublic', new DefaultValuePipe(true)) isPublic: boolean,
   ) {
-    return this.postsService.createPost(userId, title, content);
+    return this.postsService.createPost(userId, postDto);
   }
 
+  // put   -> 전체 수정, 존재하지 않을시 생성
+  // patch -> 일부 수정
   @Patch(':id')
   patchPostsById(
     @Param('id', ParseIntPipe) id: number,
-    @Body('title') title?: string,
-    @Body('content') content?: string,
+    @Body() postDto: UpdatePostDto,
   ) {
-    return this.postsService.updatePost(id, title, content);
+    return this.postsService.updatePost(id, postDto);
   }
 
   @Delete(':id')
