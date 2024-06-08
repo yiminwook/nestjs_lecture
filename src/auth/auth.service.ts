@@ -6,12 +6,42 @@ import { TokensEnum } from './const/tokens.const';
 import { UsersService } from 'src/users/users.service';
 import * as bycrypt from 'bcrypt';
 
+type PayLoad = {
+  sub: number;
+  email: string;
+  type: TokensEnum;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwrService: JwtService,
     private readonly userService: UsersService,
   ) {}
+
+  extractTokenFromHeader(header: string, isBearer: boolean) {
+    const [type, token] = header.split(' ');
+    const prefix = isBearer ? 'Bearer' : 'Basic';
+
+    const isValidate = type && token && prefix === type;
+
+    if (!isValidate) {
+      throw new UnauthorizedException('잘못된 토큰입니다.');
+    }
+
+    return token;
+  }
+
+  decodeBasicToken(token: string) {
+    const decoded = Buffer.from(token, 'base64').toString('utf-8');
+    const [email, password] = decoded.split(':');
+
+    if (!email || !password) {
+      throw new UnauthorizedException('잘못된 토큰입니다.');
+    }
+
+    return { email, password };
+  }
 
   loginUser(user: Pick<UsersModel, 'email' | 'id'>) {
     return {
@@ -39,7 +69,7 @@ export class AuthService {
   }
 
   signToken(user: Pick<UsersModel, 'email' | 'id'>, isRefreshToken: boolean) {
-    const payload = {
+    const payload: PayLoad = {
       sub: user.id,
       email: user.email,
       type: isRefreshToken ? TokensEnum.REFRESH : TokensEnum.ACCESS,
@@ -49,6 +79,25 @@ export class AuthService {
       secret: JWT_SECRET,
       expiresIn: isRefreshToken ? 3600 : 300, //초단위
     });
+  }
+
+  verifyToken(token: string) {
+    return this.jwrService.verify<PayLoad>(token, { secret: JWT_SECRET });
+  }
+
+  rotateToken(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwrService.verify<PayLoad>(token, {
+      secret: JWT_SECRET,
+    });
+
+    if (decoded.type !== TokensEnum.REFRESH) {
+      throw new UnauthorizedException('리프레시 토큰이 아닙니다.');
+    }
+
+    return this.signToken(
+      { id: decoded.sub, email: decoded.email },
+      isRefreshToken,
+    );
   }
 
   //회원가입 후 바로 로그인
