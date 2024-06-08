@@ -6,6 +6,7 @@ import { RolesEnum } from '../const/roles.const';
 import { lenghthValidationMessage } from 'src/common/validator/message/length.message';
 import { stringValidationMessage } from 'src/common/validator/message/string.message';
 import { emailValidationMessage } from 'src/common/validator/message/email.message';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity()
 export class UsersModel extends BaseModel {
@@ -27,6 +28,7 @@ export class UsersModel extends BaseModel {
   @Column()
   @IsString({ message: stringValidationMessage })
   @Length(3, 8, { message: lenghthValidationMessage })
+  @Exclude({ toPlainOnly: true }) // password는 반환하지 않음
   password: string;
 
   @Column({
@@ -39,4 +41,9 @@ export class UsersModel extends BaseModel {
   @OneToMany(() => PostsModel, (post) => post.author)
   // 작성한 포스트가 없으면 빈 배열을 반환
   posts: PostsModel[];
+
+  // @Expose({ toPlainOnly: true })
+  // get nicknameAndEmail() {
+  //   return this.nickname + '/' + this.email;
+  // }
 }
