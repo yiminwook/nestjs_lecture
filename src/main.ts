@@ -9,7 +9,14 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
 
   // class validator dto 전역설정
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // 요청 데이터가 없을때 초기값으로 변환
+      transformOptions: {
+        enableImplicitConversion: true, // 요청데이터 타입변경
+      },
+    }),
+  );
 
   // '/api' 경로로 들어오는 요청에 대한 전역 접두사 설정
   app.setGlobalPrefix('api');

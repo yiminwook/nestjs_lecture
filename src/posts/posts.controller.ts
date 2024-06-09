@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
@@ -15,6 +16,7 @@ import { AccessTokenGuard } from 'src/auth/guard/bear-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginatePostDto } from './dto/paginate-post.dto';
 
 // controller 요청을 받는 역할, 라우팅
 @Controller('posts')
@@ -22,13 +24,19 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  getPosts() {
-    return this.postsService.getAllPosts();
+  getPosts(@Query() postDto: PaginatePostDto) {
+    return this.postsService.paginatePosts(postDto);
   }
 
   @Get(':id')
   getPostsById(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.getPostById(id);
+  }
+
+  @Post('dummy')
+  @UseGuards(AccessTokenGuard)
+  postDummyPosts(@User('id') userId: number) {
+    return this.postsService.generatePosts(userId);
   }
 
   @Post()

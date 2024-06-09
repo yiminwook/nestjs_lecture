@@ -10,11 +10,11 @@ export abstract class BaseModel {
   id: number;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deleteAt?: Date;
+  deletedAt?: Date;
 }

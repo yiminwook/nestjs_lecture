@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginatePostDto } from './dto/paginate-post.dto';
 
 // service는 비즈니스 로직을 처리하는 역할
 @Injectable()
@@ -17,6 +18,29 @@ export class PostsService {
     return this.postsRepository.find({
       relations: ['author'],
     });
+  }
+
+  async generatePosts(userId: number) {
+    for (let i = 0; i < 100; i++) {
+      await this.createPost(userId, {
+        title: `임의로 생성된 포스트 제목 ${i}`,
+        content: `임의로 생성된 포스트 내용 ${i}`,
+      });
+    }
+
+    return true;
+  }
+
+  async paginatePosts(postDto: PaginatePostDto) {
+    const posts = await this.postsRepository.find({
+      where: {
+        id: MoreThan(postDto.where__id_more_than),
+      },
+      order: { createdAt: postDto.order__createdAt },
+      take: postDto.take,
+    });
+
+    return { data: posts, cursor: {} };
   }
 
   async getPostById(postId: number) {
