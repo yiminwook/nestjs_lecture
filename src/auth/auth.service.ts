@@ -1,11 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersModel } from 'src/users/entities/users.entity';
-import { HASH_ROUND, JWT_SECRET } from './const/auth.const';
-import { TokensEnum } from './const/tokens.const';
-import { UsersService } from 'src/users/users.service';
 import * as bycrypt from 'bcrypt';
+import { UsersModel } from 'src/users/entities/users.entity';
+import { UsersService } from 'src/users/users.service';
+import { TokensEnum } from './const/tokens.const';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { ConfigService } from '@nestjs/config';
+import {
+  ENV_HASH_ROUNDS_KEY,
+  ENV_JWT_SECRET_KEY,
+} from './const/env-keys.const';
 
 type PayLoad = {
   sub: number;
@@ -18,6 +22,7 @@ export class AuthService {
   constructor(
     private readonly jwrService: JwtService,
     private readonly userService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   extractTokenFromHeader(header: string, isBearer: boolean) {
@@ -77,14 +82,16 @@ export class AuthService {
     };
 
     return this.jwrService.sign(payload, {
-      secret: JWT_SECRET,
+      secret: this.configService.get<string>(ENV_JWT_SECRET_KEY),
       expiresIn: isRefreshToken ? 3600 : 300, //초단위
     });
   }
 
   verifyToken(token: string) {
     try {
-      return this.jwrService.verify<PayLoad>(token, { secret: JWT_SECRET });
+      return this.jwrService.verify<PayLoad>(token, {
+        secret: this.configService.get('JWT_SECRET'),
+      });
     } catch (e) {
       throw new UnauthorizedException('토큰이 만료되거나 잘못되었습니다.');
     }
@@ -92,7 +99,7 @@ export class AuthService {
 
   rotateToken(token: string, isRefreshToken: boolean) {
     const decoded = this.jwrService.verify<PayLoad>(token, {
-      secret: JWT_SECRET,
+      secret: this.configService.get<string>(ENV_JWT_SECRET_KEY),
     });
 
     if (decoded.type !== TokensEnum.REFRESH) {
@@ -107,7 +114,10 @@ export class AuthService {
 
   //회원가입 후 바로 로그인
   async registerWithEmail(userDto: RegisterUserDto) {
-    const hash = await bycrypt.hash(userDto.password, HASH_ROUND);
+    const hash = await bycrypt.hash(
+      userDto.password,
+      Number(this.configService.get<string>(ENV_HASH_ROUNDS_KEY)),
+    );
     const newUser = await this.userService.createUser({
       ...userDto,
       password: hash,
