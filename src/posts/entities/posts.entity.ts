@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsString } from 'class-validator';
 import { BaseModel } from 'src/common/entity/base.entity';
 import { stringValidationMessage } from 'src/common/validator/message/string.message';
@@ -22,6 +23,7 @@ export class PostsModel extends BaseModel {
   @Column({
     nullable: true,
   })
+  @Transform(({ value }) => value && `/public/posts/${value}`)
   image?: string;
 
   @Column({ default: 0 })

@@ -10,16 +10,18 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: PUBLIC_FOLDER_PATH,
       exclude: ['/api*'],
       serveStaticOptions: {
         // false일시 Error 발생
         fallthrough: false,
       },
+      serveRoot: '/public', //접두어
     }),
     ConfigModule.forRoot({
       envFilePath: '.env',
