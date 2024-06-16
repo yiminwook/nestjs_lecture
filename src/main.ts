@@ -15,6 +15,8 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true, // 요청데이터 타입변경
       },
+      whitelist: true, // 요청 데이터에 없는 속성은 제거
+      forbidNonWhitelisted: true, // 요청 데이터에 없는 속성이 있을시 에러
     }),
   );
 

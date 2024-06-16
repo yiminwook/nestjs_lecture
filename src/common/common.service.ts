@@ -27,7 +27,7 @@ export class CommonService {
   private async pagePaginate<T extends BaseModel>(
     dto: BasePaginationDto,
     repository: Repository<T>,
-    overrideFindOptions: FindManyOptions<T> = {},
+    overrideFindOptions: FindManyOptions<T>,
   ) {
     const findOptions = this.composeFindOptions<T>(dto);
 
@@ -46,7 +46,7 @@ export class CommonService {
     dto: BasePaginationDto,
     repository: Repository<T>,
     url: string,
-    overrideFindOptions: FindManyOptions<T> = {},
+    overrideFindOptions: FindManyOptions<T>,
   ) {
     const findOptions = this.composeFindOptions<T>(dto);
 
@@ -127,7 +127,12 @@ export class CommonService {
       const field = split[1];
       const operator = split[2];
       const values = value.toString().split(',');
-      options[field] = FILTER_MAPPER[operator](...values);
+      if (operator === 'i_like') {
+        const filter = '%' + values[0] + '%';
+        options[field] = FILTER_MAPPER[operator](filter);
+      } else {
+        options[field] = FILTER_MAPPER[operator](...values);
+      }
     }
 
     return options;

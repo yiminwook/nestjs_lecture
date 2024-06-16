@@ -44,7 +44,15 @@ export class PostsService {
     return this.commonService.paginate(
       postDto,
       this.postsRepository,
-      {},
+      {
+        relations: ['author'],
+        select: {
+          author: {
+            email: true,
+            id: true,
+          },
+        },
+      },
       baseUrl,
     );
   }
