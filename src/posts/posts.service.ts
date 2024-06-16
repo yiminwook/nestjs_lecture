@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ENV_HOST_KEY, ENV_PROTOCOL_KEY } from 'src/auth/const/env-keys.const';
-import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
+import { CommonService } from 'src/common/common.service';
+import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
-import { OrderBy, PaginatePostDto } from './dto/paginate-post.dto';
+import { PaginatePostDto } from './dto/paginate-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsModel } from './entities/posts.entity';
 
@@ -15,6 +16,7 @@ export class PostsService {
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
     private readonly configService: ConfigService,
+    private readonly commonService: CommonService,
   ) {}
 
   async getAllPosts() {
@@ -35,70 +37,16 @@ export class PostsService {
   }
 
   async paginatePosts(postDto: PaginatePostDto) {
-    if (postDto.page) {
-      return this.pagePaginatePosts(postDto);
-    } else {
-      return this.cursorPaginatePosts(postDto);
-    }
-  }
-
-  async pagePaginatePosts(postDto: PaginatePostDto) {
-    const [posts, total] = await this.postsRepository.findAndCount({
-      skip: postDto.take * (postDto.page - 1),
-      take: postDto.take,
-      order: { createdAt: postDto.order__createdAt },
-    });
-
-    return {
-      data: posts,
-      total,
-    };
-  }
-
-  async cursorPaginatePosts(postDto: PaginatePostDto) {
-    const where: FindOptionsWhere<PostsModel> = {};
-    if (postDto.where__id_less_than) {
-      where.id = LessThan(postDto.where__id_less_than);
-    } else if (postDto.where__id_more_than) {
-      where.id = MoreThan(postDto.where__id_more_than);
-    }
-
-    const posts = await this.postsRepository.find({
-      where,
-      order: { createdAt: postDto.order__createdAt },
-      take: postDto.take,
-    });
-
-    const lastPost =
-      posts.length > 0 && posts.length === postDto.take ? posts.at(-1) : null;
-
     const protocol = this.configService.get(ENV_PROTOCOL_KEY);
     const host = this.configService.get(ENV_HOST_KEY);
     const baseUrl = `${protocol}://${host}/api/posts`;
-    const nextUrl = lastPost && new URL(baseUrl);
 
-    if (nextUrl) {
-      for (const key in postDto) {
-        if (postDto[key] && !key.startsWith('where__id')) {
-          nextUrl.searchParams.append(key, postDto[key]);
-        }
-      }
-
-      const idKey =
-        postDto.order__createdAt === OrderBy.ASC
-          ? 'id_more_than'
-          : 'id_less_than';
-      nextUrl.searchParams.append('where__' + idKey, lastPost.id.toString());
-    }
-
-    return {
-      data: posts,
-      cursor: {
-        after: lastPost?.id || null,
-      },
-      count: posts.length,
-      next: nextUrl?.toString() || null,
-    };
+    return this.commonService.paginate(
+      postDto,
+      this.postsRepository,
+      {},
+      baseUrl,
+    );
   }
 
   async getPostById(postId: number) {

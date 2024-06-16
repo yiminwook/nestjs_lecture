@@ -1,29 +1,3 @@
-import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { BasePaginationDto } from 'src/common/dto/base-pagination.dto';
 
-export enum OrderBy {
-  'ASC' = 'ASC',
-  'DESC' = 'DESC',
-}
-
-export class PaginatePostDto {
-  @IsNumber()
-  @IsOptional()
-  page?: number;
-
-  @IsNumber()
-  @IsOptional()
-  where__id_less_than?: number;
-
-  // @Type(() => Number) //string => number
-  @IsNumber()
-  @IsOptional()
-  where__id_more_than?: number;
-
-  @IsEnum(OrderBy)
-  @IsOptional()
-  order__createdAt?: OrderBy = OrderBy.ASC;
-
-  @IsNumber()
-  @IsOptional()
-  take?: number = 20;
-}
+export class PaginatePostDto extends BasePaginationDto {}

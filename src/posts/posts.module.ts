@@ -5,9 +5,15 @@ import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, TypeOrmModule.forFeature([PostsModel])],
+  imports: [
+    AuthModule,
+    UsersModule,
+    CommonModule,
+    TypeOrmModule.forFeature([PostsModel]),
+  ],
   controllers: [PostsController],
   providers: [PostsService],
 })
