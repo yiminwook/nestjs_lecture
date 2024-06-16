@@ -8,6 +8,10 @@ export enum OrderBy {
 export class PaginatePostDto {
   @IsNumber()
   @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @IsOptional()
   where__id_less_than?: number;
 
   // @Type(() => Number) //string => number
