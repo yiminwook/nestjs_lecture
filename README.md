@@ -17,3 +17,8 @@ DB 초기화
 ./postgres-data 폴더삭제
 DB 재실행
 ```
+
+실행순서
+req => middleware => guard => interceptor => pipe
+controller => service => repository
+exceptionfilter => interceptor => res

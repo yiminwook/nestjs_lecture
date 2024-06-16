@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bear-token.guard';
@@ -17,6 +19,7 @@ import { User } from 'src/users/decorator/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 // controller 요청을 받는 역할, 라우팅
 @Controller('posts')
@@ -40,13 +43,15 @@ export class PostsController {
   }
 
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
   @UseGuards(AccessTokenGuard)
   postPosts(
     @User('id') userId: number,
     @Body() postDto: CreatePostDto,
     @Body('isPublic', new DefaultValuePipe(true)) isPublic: boolean,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.postsService.createPost(userId, postDto);
+    return this.postsService.createPost(userId, postDto, file?.filename);
   }
 
   // put   -> 전체 수정, 존재하지 않을시 생성

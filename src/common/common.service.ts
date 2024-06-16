@@ -7,7 +7,7 @@ import {
   Repository,
 } from 'typeorm';
 import { BaseModel } from './entity/base.entity';
-import { FILTER_MAPPER } from './const/filter-mapper';
+import { FILTER_MAPPER } from './const/filter-mapper.const';
 
 @Injectable()
 export class CommonService {
