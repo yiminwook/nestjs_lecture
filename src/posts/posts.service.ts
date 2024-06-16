@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { MoreThan, Repository } from 'typeorm';
-import { PostsModel } from './entities/posts.entity';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ENV_HOST_KEY, ENV_PROTOCOL_KEY } from 'src/auth/const/env-keys.const';
+import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
+import { OrderBy, PaginatePostDto } from './dto/paginate-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PaginatePostDto } from './dto/paginate-post.dto';
+import { PostsModel } from './entities/posts.entity';
 
 // service는 비즈니스 로직을 처리하는 역할
 @Injectable()
@@ -12,6 +14,7 @@ export class PostsService {
   constructor(
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
+    private readonly configService: ConfigService,
   ) {}
 
   async getAllPosts() {
@@ -32,15 +35,49 @@ export class PostsService {
   }
 
   async paginatePosts(postDto: PaginatePostDto) {
+    const where: FindOptionsWhere<PostsModel> = {};
+    if (postDto.where__id_less_than) {
+      where.id = LessThan(postDto.where__id_less_than);
+    } else if (postDto.where__id_more_than) {
+      where.id = MoreThan(postDto.where__id_more_than);
+    }
+
     const posts = await this.postsRepository.find({
-      where: {
-        id: MoreThan(postDto.where__id_more_than),
-      },
+      where,
       order: { createdAt: postDto.order__createdAt },
       take: postDto.take,
     });
 
-    return { data: posts, cursor: {} };
+    const lastPost =
+      posts.length > 0 && posts.length === postDto.take ? posts.at(-1) : null;
+
+    const protocol = this.configService.get(ENV_PROTOCOL_KEY);
+    const host = this.configService.get(ENV_HOST_KEY);
+    const baseUrl = `${protocol}://${host}/api/posts`;
+    const nextUrl = lastPost && new URL(baseUrl);
+
+    if (nextUrl) {
+      for (const key in postDto) {
+        if (postDto[key] && !key.startsWith('where__id')) {
+          nextUrl.searchParams.append(key, postDto[key]);
+        }
+      }
+
+      const idKey =
+        postDto.order__createdAt === OrderBy.ASC
+          ? 'id_more_than'
+          : 'id_less_than';
+      nextUrl.searchParams.append('where__' + idKey, lastPost.id.toString());
+    }
+
+    return {
+      data: posts,
+      cursor: {
+        after: lastPost?.id || null,
+      },
+      count: posts.length,
+      next: nextUrl?.toString() || null,
+    };
   }
 
   async getPostById(postId: number) {
