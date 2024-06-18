@@ -1,25 +1,14 @@
 import { BadRequestException, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostsModel } from './entities/posts.entity';
-import { PostsController } from './posts.controller';
-import { PostsService } from './posts.service';
-import { AuthModule } from 'src/auth/auth.module';
-import { UsersModule } from 'src/users/users.module';
-import { CommonModule } from 'src/common/common.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { extname } from 'path';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import * as multer from 'multer';
+import { extname } from 'path';
 import { POSTS_FOLDER_PATH } from 'src/common/const/path.const';
 import { v4 as uuid } from 'uuid';
-import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
   imports: [
-    AuthModule,
-    UsersModule,
-    CommonModule,
-    AwsModule,
-    TypeOrmModule.forFeature([PostsModel]),
+    TypeOrmModule.forFeature([]),
     MulterModule.register({
       limits: {
         fieldSize: 10000000, //바이트 단위로 입력
@@ -38,7 +27,6 @@ import { AwsModule } from 'src/aws/aws.module';
       },
       storage: multer.diskStorage({
         destination: (req, res, cb) => {
-          console.log(POSTS_FOLDER_PATH);
           return cb(null, POSTS_FOLDER_PATH);
         },
         filename: (req, file, cb) => {
@@ -47,7 +35,7 @@ import { AwsModule } from 'src/aws/aws.module';
       }),
     }),
   ],
-  controllers: [PostsController],
-  providers: [PostsService],
+  controllers: [],
+  providers: [],
 })
-export class PostsModule {}
+export class LocalUploadModule {}
