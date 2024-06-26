@@ -24,6 +24,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalFilters(new AppFilter(httpAdapter), new HttpExceptionFilter());
 
+  // cors 허용
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   await app.listen(3000);
 }
 bootstrap();
