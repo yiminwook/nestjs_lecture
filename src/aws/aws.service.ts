@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { v4 as uuid } from 'uuid';
@@ -37,6 +37,8 @@ export class AwsService {
 
     // 생성된 명령을 S3 클라이언트에 전달하여 이미지 업로드를 수행합니다.
     await this.s3Client.send(command);
+
+    Logger.log(`AWS S3 이미지 업로드 성공, 파일명: ${filename}`);
 
     // 업로드된 이미지의 URL을 반환합니다.
     return { path: filename };

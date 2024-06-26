@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppFilter } from './app.filter';
 import { AppModule } from './app.module';
@@ -37,7 +37,7 @@ async function bootstrap() {
 
   const port = 8080;
   await app.listen(port, () => {
-    console.log('🚀서버가 실행되었습니다. 포트 : ', port);
+    Logger.log(`🚀서버가 실행되었습니다. 포트 : ${port}`);
   });
 }
 bootstrap();
