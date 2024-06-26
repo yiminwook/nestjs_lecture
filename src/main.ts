@@ -35,6 +35,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(8080);
+  const port = 8080;
+  await app.listen(port, () => {
+    console.log('🚀서버가 실행되었습니다. 포트 : ', port);
+  });
 }
 bootstrap();

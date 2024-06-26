@@ -10,9 +10,6 @@ export class AwsService {
 
   constructor(private configService: ConfigService) {
     // AWS S3 클라이언트 초기화. 환경 설정 정보를 사용하여 AWS 리전, Access Key, Secret Key를 설정.
-    console.log(this.configService.get('AWS_REGION'));
-    console.log(this.configService.get('AWS_S3_ACCESS_KEY'));
-    console.log(this.configService.get('AWS_S3_SECRET_KEY'));
 
     this.s3Client = new S3Client({
       region: this.configService.get('AWS_REGION'), // AWS Region
