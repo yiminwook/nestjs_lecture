@@ -3,6 +3,7 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppFilter } from './app.filter';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './http-exception.filter';
+import { urlencoded, json } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,12 +25,16 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalFilters(new AppFilter(httpAdapter), new HttpExceptionFilter());
 
+  app.use(json({ limit: '500mb' }));
+  app.use(urlencoded({ extended: true, limit: '500mb' }));
+
   // cors 허용
   app.enableCors({
     origin: ['http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 
-  await app.listen(3000);
+  await app.listen(8080);
 }
 bootstrap();

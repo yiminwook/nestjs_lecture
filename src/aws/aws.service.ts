@@ -42,6 +42,6 @@ export class AwsService {
     await this.s3Client.send(command);
 
     // 업로드된 이미지의 URL을 반환합니다.
-    return `https://d1e7n5w7ku9qm7.cloudfront.net/${filename}`;
+    return { path: filename };
   }
 }
