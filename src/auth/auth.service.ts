@@ -83,7 +83,7 @@ export class AuthService {
 
     return this.jwrService.sign(payload, {
       secret: this.configService.get<string>(ENV_JWT_SECRET_KEY),
-      expiresIn: isRefreshToken ? 3600 : 300, //초단위
+      expiresIn: isRefreshToken ? 60 * 60 * 3 : 60 * 60, //초단위
     });
   }
 
