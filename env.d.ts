@@ -5,7 +5,7 @@ declare global {
       readonly TZ?: string;
 
       readonly HOST: string;
-      readonly PORT: string;
+      readonly PROTOCOL: 'http' | 'https';
 
       readonly JWT_SECRET: string;
       readonly HASH_ROUNDS: string;
